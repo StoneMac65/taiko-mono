@@ -18,7 +18,7 @@ import (
 //		    @Param			proposer	query		string		false	"proposer address to filter by"
 //		    @Param			start_date	query		string		false	"start date (YYYY-MM-DD)"
 //		    @Param			end_date	query		string		false	"end date (YYYY-MM-DD)"
-//		    @Param			chain_id	query		string		false	"chain ID (167000=mainnet, 167009=hekla, 167008=tolba)"
+//		    @Param			chain_id	query		string		false	"chain ID (167000=mainnet, 167009=hekla, 167008=hoodi)"
 //			@Accept			json
 //			@Produce		json
 //			@Success		200	{object} eventindexer.ChartResponse
