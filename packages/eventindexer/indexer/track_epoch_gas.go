@@ -125,6 +125,8 @@ func (i *Indexer) getGenesisTimestamp() uint64 {
 		return 1606824023
 	case 17000:
 		return 1695902400
+	case 167012: // Hoodi
+		return 0 // Genesis block timestamp is 0
 	default:
 		return 0
 	}
