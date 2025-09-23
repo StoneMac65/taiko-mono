@@ -71,17 +71,9 @@ func (i *Indexer) isNewEpochForBlock(proposer common.Address, blockTime time.Tim
 		return true
 	}
 
-	if i.currentEpoch.PreconferAddress != proposer.Hex() {
-		return true
-	}
-
-	epochDuration := blockTime.Sub(i.currentEpoch.StartTime)
-
-	if epochDuration > 384*time.Second {
-		return true
-	}
-
-	if epochDuration > 10*time.Minute {
+	// Check if we're in a different epoch based on timestamp
+	currentEpochNumber := i.calculateEpochNumberForTime(blockTime)
+	if currentEpochNumber != i.currentEpoch.EpochNumber {
 		return true
 	}
 
