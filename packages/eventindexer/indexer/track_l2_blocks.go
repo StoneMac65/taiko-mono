@@ -20,7 +20,7 @@ func (i *Indexer) startL2BlockMonitor(ctx context.Context) {
 		lastProcessedBlock = 1320745 // Exact start: Aug 11, 2025 at 13:48:31
 	case 167009: // Hekla
 		lastProcessedBlock = 1000000 // Approximate (exact date unknown)
-	case 167008: // Hoodi
+	case 167012: // Hoodi
 		lastProcessedBlock = 0 // From genesis
 	default:
 		// For unknown networks, start from recent blocks

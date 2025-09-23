@@ -13,7 +13,7 @@ Tracks L2 revenue per preconfer epoch in ETH.
 
 - **Mainnet (167000)**: Starts block 1,320,745
 - **Hekla (167009)**: Starts block 1,000,000 (approximate)
-- **Hoodi (167008)**: Starts from genesis (block 0)
+- **Hoodi (167012)**: Starts from genesis (block 0)
 
 ## API Usage
 

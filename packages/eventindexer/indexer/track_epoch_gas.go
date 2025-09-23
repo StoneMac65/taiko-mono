@@ -138,7 +138,7 @@ func (i *Indexer) isPreconfirmationActiveForBlock(blockNumber uint64) bool {
 		preconfStartBlock = 1320745 // Exact start: Aug 11, 2025 at 13:48:31
 	case 167009: // Hekla
 		preconfStartBlock = 1000000 // Approximate (exact date unknown)
-	case 167008: // Hoodi
+	case 167012: // Hoodi
 		preconfStartBlock = 0 // From genesis
 	default:
 		preconfStartBlock = 0
