@@ -40,12 +40,11 @@ var (
 type Indexer struct {
 	db db.DB
 
-	accountRepo       eventindexer.AccountRepository
-	eventRepo         eventindexer.EventRepository
-	nftBalanceRepo    eventindexer.NFTBalanceRepository
-	erc20BalanceRepo  eventindexer.ERC20BalanceRepository
-	txRepo            eventindexer.TransactionRepository
-	profitabilityRepo eventindexer.ProfitabilityMetricsRepository
+	accountRepo      eventindexer.AccountRepository
+	eventRepo        eventindexer.EventRepository
+	nftBalanceRepo   eventindexer.NFTBalanceRepository
+	erc20BalanceRepo eventindexer.ERC20BalanceRepository
+	txRepo           eventindexer.TransactionRepository
 
 	ethClient  *ethclient.Client
 	srcChainID uint64
