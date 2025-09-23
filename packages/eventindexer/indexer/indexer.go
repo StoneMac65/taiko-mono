@@ -40,11 +40,12 @@ var (
 type Indexer struct {
 	db db.DB
 
-	accountRepo      eventindexer.AccountRepository
-	eventRepo        eventindexer.EventRepository
-	nftBalanceRepo   eventindexer.NFTBalanceRepository
-	erc20BalanceRepo eventindexer.ERC20BalanceRepository
-	txRepo           eventindexer.TransactionRepository
+	accountRepo       eventindexer.AccountRepository
+	eventRepo         eventindexer.EventRepository
+	nftBalanceRepo    eventindexer.NFTBalanceRepository
+	erc20BalanceRepo  eventindexer.ERC20BalanceRepository
+	txRepo            eventindexer.TransactionRepository
+	profitabilityRepo eventindexer.ProfitabilityMetricsRepository
 
 	ethClient  *ethclient.Client
 	srcChainID uint64
@@ -77,6 +78,9 @@ type Indexer struct {
 	pacayaForkHeight              uint64
 	isPostOntakeForkHeightReached bool
 	isPostPacayaForkHeightReached bool
+
+	// Epoch tracking
+	currentEpoch *EpochData
 }
 
 func (i *Indexer) Start() error {
@@ -86,9 +90,10 @@ func (i *Indexer) Start() error {
 		return errors.Wrap(err, "i.setInitialIndexingBlockByMode")
 	}
 
-	i.wg.Add(1)
+	i.wg.Add(2) // Add one more for L2 block monitor
 
 	go i.eventLoop(i.ctx)
+	go i.startL2BlockMonitor(i.ctx) // Start L2 block monitoring for epoch tracking
 
 	return nil
 }
@@ -115,6 +120,24 @@ func (i *Indexer) eventLoop(ctx context.Context) {
 
 func (i *Indexer) Name() string {
 	return "indexer"
+}
+
+// Setter methods for testing
+func (i *Indexer) SetEthClient(client *ethclient.Client) {
+	i.ethClient = client
+}
+
+func (i *Indexer) SetDB(database db.DB) {
+	i.db = database
+}
+
+func (i *Indexer) SetSrcChainID(chainID uint64) {
+	i.srcChainID = chainID
+}
+
+// StartL2BlockMonitor exposes the L2 block monitor for testing
+func (i *Indexer) StartL2BlockMonitor(ctx context.Context) {
+	i.startL2BlockMonitor(ctx)
 }
 
 func (i *Indexer) InitFromCli(ctx context.Context, c *cliV2.Context) error {

@@ -23,4 +23,7 @@ func (srv *Server) configureRoutes() {
 	chartAPI := srv.echo.Group("/chart")
 
 	chartAPI.GET("/chartByTask", srv.GetChartByTask)
+
+	// Epoch Revenue API
+	srv.echo.GET("/epoch-revenue", srv.GetEpochRevenue)
 }
