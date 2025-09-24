@@ -48,7 +48,7 @@ func GetNetworkConfig(chainID uint64) *NetworkConfig {
 	configs := map[uint64]*NetworkConfig{
 		167000: { // Taiko Mainnet
 			ChainID:              167000,
-			GenesisTimestamp:     1606824023, // Ethereum mainnet beacon genesis
+			GenesisTimestamp:     1716768000, // Taiko mainnet launch: May 27, 2024
 			PreconfStartBlock:    1320745,    // Aug 11, 2025 at 13:48:31 (preconf implementation)
 			EpochDurationSeconds: 384,        // 32 slots * 12 seconds
 			Name:                 "mainnet",
@@ -128,18 +128,28 @@ func (i *Indexer) isNewEpochForBlock(proposer common.Address, blockTime time.Tim
 		return true
 	}
 
-	// Check if we're in a different epoch based on timestamp
-	currentEpochNumber := i.calculateEpochNumberForTime(blockTime, config)
-	if currentEpochNumber != i.currentEpoch.EpochNumber {
-		return true
-	}
-
-	// Check if proposer changed (additional epoch boundary condition)
+	// Primary condition: Check if proposer changed
 	if i.currentEpoch.PreconferAddress != proposer.Hex() {
 		slog.Info("Proposer changed, starting new epoch",
 			"oldProposer", i.currentEpoch.PreconferAddress,
 			"newProposer", proposer.Hex(),
 			"blockNumber", i.currentEpoch.EndBlockNumber)
+		return true
+	}
+
+	// Secondary condition: Check if we've crossed a significant time boundary
+	// Only split on timestamp if proposer is the same but we've crossed multiple epochs
+	currentEpochNumber := i.calculateEpochNumberForTime(blockTime, config)
+	epochDifference := currentEpochNumber - i.currentEpoch.EpochNumber
+
+	// Allow same proposer to continue across epoch boundaries, but limit to prevent
+	// extremely long epochs (e.g., if a proposer is active for hours)
+	if epochDifference >= 3 { // Allow up to ~19 minutes (3 * 384 seconds) per proposer session
+		slog.Info("Long proposer session, splitting epoch on time boundary",
+			"proposer", proposer.Hex(),
+			"currentEpoch", i.currentEpoch.EpochNumber,
+			"newEpoch", currentEpochNumber,
+			"epochDifference", epochDifference)
 		return true
 	}
 
