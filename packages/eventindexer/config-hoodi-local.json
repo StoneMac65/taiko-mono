@@ -1,0 +1,36 @@
+{
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "username": "root",
+    "password": "password",
+    "database": "taiko_indexer",
+    "maxIdleConns": 10,
+    "maxOpenConns": 100,
+    "maxConnLifetime": 3600
+  },
+  "rpc": {
+    "url": "http://localhost:8547",
+    "timeout": 30
+  },
+  "indexer": {
+    "chainId": 167012,
+    "layer": "L2",
+    "syncMode": "sync",
+    "blockBatchSize": 100,
+    "subscriptionBackoff": 5,
+    "indexNFTs": true,
+    "indexERC20s": true
+  },
+  "contracts": {
+    "l1TaikoAddress": "0x0000000000000000000000000000000000000000",
+    "bridgeAddress": "0x0000000000000000000000000000000000000000"
+  },
+  "metrics": {
+    "httpPort": 9090
+  },
+  "forks": {
+    "ontakeForkHeight": 0,
+    "pacayaForkHeight": 0
+  }
+}
