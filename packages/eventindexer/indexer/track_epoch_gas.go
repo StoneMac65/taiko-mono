@@ -106,7 +106,7 @@ func (i *Indexer) trackL2BlockForEpoch(ctx context.Context, blockNumber uint64) 
 
 	// Check if we need to start a new epoch
 	if i.isNewEpochForBlock(proposer, blockTime, config) {
-		if err := i.endCurrentEpoch(ctx); err != nil {
+		if err := i.endCurrentEpoch(ctx, blockTime); err != nil {
 			slog.Warn("Failed to end previous epoch", "error", err)
 		}
 
@@ -317,12 +317,12 @@ func (i *Indexer) calculateBlockRevenueEfficient(block *types.Block) (*big.Int, 
 	return totalRevenue, totalGasUsed
 }
 
-func (i *Indexer) endCurrentEpoch(ctx context.Context) error {
+func (i *Indexer) endCurrentEpoch(ctx context.Context, blockTime time.Time) error {
 	if i.currentEpoch == nil {
 		return nil
 	}
 
-	i.currentEpoch.EndTime = time.Now().UTC()
+	i.currentEpoch.EndTime = blockTime
 
 	if err := i.saveEpochGasData(ctx, i.currentEpoch); err != nil {
 		return errors.Wrap(err, "failed to save epoch gas data")
@@ -444,5 +444,5 @@ func (i *Indexer) getCurrentEpochRevenue() *big.Int {
 }
 
 func (i *Indexer) forceEndCurrentEpoch(ctx context.Context) error {
-	return i.endCurrentEpoch(ctx)
+	return i.endCurrentEpoch(ctx, time.Now().UTC())
 }
