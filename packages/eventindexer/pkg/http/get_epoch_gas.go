@@ -29,13 +29,24 @@ func (srv *Server) GetEpochRevenue(c echo.Context) error {
 	endDate := c.QueryParam("end_date")
 	chainID := c.QueryParam("chain_id")
 
-	// Determine task name based on chain ID
+	// Determine task name based on chain ID (match indexer logic)
 	var taskName string
 	if chainID != "" {
-		taskName = fmt.Sprintf("epoch_l2_revenue_%s", chainID)
+		// Convert chain ID to network name (same logic as indexer)
+		switch chainID {
+		case "167000": // Mainnet
+			taskName = "epoch_l2_revenue_mainnet"
+		case "167009": // Hekla
+			taskName = "epoch_l2_revenue_hekla"
+		case "167012": // Hoodi
+			taskName = "epoch_l2_revenue_hoodi"
+		default:
+			// Fallback to chain ID format for unknown networks
+			taskName = fmt.Sprintf("epoch_l2_revenue_%s", chainID)
+		}
 	} else {
 		// Default to mainnet if no chain ID specified
-		taskName = "epoch_l2_revenue_167000"
+		taskName = "epoch_l2_revenue_mainnet"
 	}
 
 	// Build cache key including chain ID
