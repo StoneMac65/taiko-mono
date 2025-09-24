@@ -5,18 +5,35 @@ Tracks L2 revenue per preconfer epoch in ETH.
 ## How It Works
 
 - Monitors L2 blocks directly (every 2 seconds)
-- New epoch: different proposer OR >6.4 minutes
+- New epoch: proposer changes OR >19 minutes (3 epochs)
 - Revenue: 75% base fee + 100% priority fee per transaction
 - Values stored and returned in ETH
 
-## Networks
+## Configuration
 
-- **Mainnet (167000)**: Starts block 1,320,745
-- **Hekla (167009)**: Starts block 1,000,000 (approximate)
-- **Hoodi (167012)**: Starts from genesis (block 0)
+### Network Defaults
+- **Mainnet (167000)**: Block 1,320,745 (Aug 11, 2025)
+- **Hekla (167009)**: Block 1,472,749 (Jun 10, 2025)
+- **Hoodi (167012)**: Block 0 (genesis)
 
-## API Usage
+### Custom Starting Block
+```bash
+--epochRevenueStartingBlock=2590000
+```
+Overrides network defaults. Use for testing specific block ranges.
 
+## Usage
+
+### Start Indexer
+```bash
+# Use network defaults
+./eventindexer indexer --rpcUrl="https://rpc.mainnet.taiko.xyz" --layer="L2"
+
+# Custom starting block
+./eventindexer indexer --epochRevenueStartingBlock=2590000 --rpcUrl="https://rpc.mainnet.taiko.xyz" --layer="L2"
+```
+
+### API Endpoints
 ```bash
 # Get epoch revenue
 GET /epoch-revenue?chain_id=167000

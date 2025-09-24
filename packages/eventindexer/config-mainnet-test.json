@@ -1,0 +1,36 @@
+{
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "username": "eventindexer",
+    "password": "EventIndexer2024!",
+    "database": "eventindexer",
+    "maxIdleConns": 5,
+    "maxOpenConns": 10,
+    "maxConnLifetime": 3600
+  },
+  "rpc": {
+    "url": "https://rpc.mainnet.taiko.xyz",
+    "timeout": 60
+  },
+  "indexer": {
+    "chainId": 167000,
+    "layer": "L2",
+    "syncMode": "sync",
+    "blockBatchSize": 5,
+    "subscriptionBackoff": 10,
+    "indexNFTs": false,
+    "indexERC20s": false
+  },
+  "contracts": {
+    "l1TaikoAddress": "0x0000000000000000000000000000000000000000",
+    "bridgeAddress": "0x0000000000000000000000000000000000000000"
+  },
+  "metrics": {
+    "httpPort": 9091
+  },
+  "forks": {
+    "ontakeForkHeight": 0,
+    "pacayaForkHeight": 0
+  }
+}
