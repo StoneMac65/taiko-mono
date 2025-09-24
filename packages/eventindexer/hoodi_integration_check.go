@@ -1,4 +1,4 @@
-package main
+package eventindexer
 
 import (
 	"context"
@@ -26,7 +26,7 @@ func GetHoodiConfig() *NetworkConfig {
 	}
 }
 
-func main() {
+func RunHoodiIntegrationCheck() {
 	fmt.Println("🚀 Testing Hoodi Indexer with Epoch Revenue Tracking")
 	fmt.Println("====================================================")
 
@@ -70,7 +70,7 @@ func main() {
 	fmt.Printf("   Network: %s\n", config.Name)
 	fmt.Printf("   Genesis Timestamp: %d\n", config.GenesisTimestamp)
 	fmt.Printf("   Preconf Start Block: %d\n", config.PreconfStartBlock)
-	fmt.Printf("   Epoch Duration: %d seconds (%d minutes)\n", 
+	fmt.Printf("   Epoch Duration: %d seconds (%d minutes)\n",
 		config.EpochDurationSeconds, config.EpochDurationSeconds/60)
 
 	// Calculate current epoch
@@ -78,7 +78,7 @@ func main() {
 	if uint64(currentTime) >= config.GenesisTimestamp {
 		currentEpoch := (uint64(currentTime) - config.GenesisTimestamp) / config.EpochDurationSeconds
 		fmt.Printf("   Current Epoch: %d\n", currentEpoch)
-		
+
 		// Calculate next epoch time
 		nextEpochTime := config.GenesisTimestamp + (currentEpoch+1)*config.EpochDurationSeconds
 		nextEpochDuration := time.Until(time.Unix(int64(nextEpochTime), 0))
@@ -88,7 +88,7 @@ func main() {
 	}
 
 	fmt.Println("\n3. Testing Block Processing:")
-	
+
 	// Test processing a few recent blocks
 	startBlock := latestBlock
 	if startBlock > 5 {
@@ -96,7 +96,7 @@ func main() {
 	}
 
 	fmt.Printf("   Processing blocks %d to %d...\n", startBlock, latestBlock)
-	
+
 	totalGasUsed := uint64(0)
 	totalBaseFee := uint64(0)
 	blockCount := uint64(0)
@@ -118,7 +118,7 @@ func main() {
 		totalBaseFee += baseFee
 		blockCount++
 
-		fmt.Printf("   📦 Block %d: Gas Used: %d, Base Fee: %d\n", 
+		fmt.Printf("   📦 Block %d: Gas Used: %d, Base Fee: %d\n",
 			block.NumberU64(), gasUsed, baseFee)
 	}
 
