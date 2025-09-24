@@ -13,6 +13,17 @@ func (i *Indexer) setInitialIndexingBlockByMode(
 	mode SyncMode,
 ) error {
 	var startingBlock uint64 = 0
+
+	// Check if user provided a custom start block via --startBlock flag
+	if i.startBlock != nil {
+		startingBlock = *i.startBlock
+		slog.Info("Using custom start block from flag for main indexer",
+			"chainID", i.srcChainID,
+			"startBlock", startingBlock)
+		i.latestIndexedBlockNumber = startingBlock
+		return nil
+	}
+
 	// only check stateVars on L1, otherwise sync from 0
 	if i.taikol1 != nil {
 		slotA, _, err := i.taikol1.GetStateVariables(nil)
