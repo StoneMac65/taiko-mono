@@ -56,7 +56,7 @@ func GetNetworkConfig(chainID uint64) *NetworkConfig {
 		167009: { // Taiko Hekla
 			ChainID:              167009,
 			GenesisTimestamp:     1695902400, // Ethereum Holesky beacon genesis
-			PreconfStartBlock:    1000000,    // Approximate - need exact block when preconf was enabled
+			PreconfStartBlock:    1472749,    // Jun 10, 2025 at 06:13:22 (preconfirmation implementation)
 			EpochDurationSeconds: 384,
 			Name:                 "hekla",
 		},

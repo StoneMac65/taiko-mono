@@ -14,10 +14,10 @@ func (i *Indexer) setInitialIndexingBlockByMode(
 ) error {
 	var startingBlock uint64 = 0
 
-	// Check if user provided a custom start block via --startBlock flag
-	if i.startBlock != nil {
-		startingBlock = *i.startBlock
-		slog.Info("Using custom start block from flag for main indexer",
+	// Check if user provided a custom start block via --epochRevenueStartingBlock flag
+	if i.epochRevenueStartingBlock != nil {
+		startingBlock = *i.epochRevenueStartingBlock
+		slog.Info("Using custom epoch revenue starting block from flag for main indexer",
 			"chainID", i.srcChainID,
 			"startBlock", startingBlock)
 		i.latestIndexedBlockNumber = startingBlock

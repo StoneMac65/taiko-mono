@@ -15,25 +15,19 @@ func (i *Indexer) startL2BlockMonitor(ctx context.Context) {
 	var lastProcessedBlock uint64 = 0
 
 	// Get starting block number
-	// Check if user provided a custom start block via --startBlock flag
-	if i.startBlock != nil {
-		lastProcessedBlock = *i.startBlock
-		slog.Info("Using custom start block from flag",
+	// Check if user provided a custom start block via --epochRevenueStartingBlock flag
+	if i.epochRevenueStartingBlock != nil {
+		lastProcessedBlock = *i.epochRevenueStartingBlock
+		slog.Info("Using custom epoch revenue starting block from flag",
 			"chainID", i.srcChainID,
 			"startBlock", lastProcessedBlock)
 	} else {
 		// Use network-specific defaults
 		switch i.srcChainID {
 		case 167000: // Mainnet
-			// Start from recent blocks instead of August 2025
-			latestBlock, err := i.ethClient.BlockNumber(ctx)
-			if err != nil {
-				slog.Error("Failed to get latest block number", "error", err)
-				return
-			}
-			lastProcessedBlock = latestBlock - 1000 // Start 1000 blocks back (~3-4 hours)
+			lastProcessedBlock = 1320745 // Aug 11, 2025 at 13:48:31 (preconf implementation)
 		case 167009: // Hekla
-			lastProcessedBlock = 1000000 // Approximate (exact date unknown)
+			lastProcessedBlock = 1472749 // Jun 10, 2025 at 06:13:22 (preconfirmation implementation)
 		case 167012: // Hoodi
 			lastProcessedBlock = 0 // From genesis
 		default:
@@ -43,7 +37,7 @@ func (i *Indexer) startL2BlockMonitor(ctx context.Context) {
 				slog.Error("Failed to get latest block number", "error", err)
 				return
 			}
-			lastProcessedBlock = latestBlock - 100 // Start 100 blocks back
+			lastProcessedBlock = latestBlock - 100 // Start 100 blocks back for unknown networks
 		}
 	}
 

@@ -78,8 +78,8 @@ type Indexer struct {
 	isPostOntakeForkHeightReached bool
 	isPostPacayaForkHeightReached bool
 
-	// Custom start block from flag
-	startBlock *uint64
+	// Custom start block from epochRevenueStartingBlock flag
+	epochRevenueStartingBlock *uint64
 
 	// Epoch tracking
 	currentEpoch *EpochData
@@ -256,7 +256,7 @@ func InitFromConfig(ctx context.Context, i *Indexer, cfg *Config) error {
 	i.contractToMetadataMutex = &sync.Mutex{}
 	i.ontakeForkHeight = cfg.OntakeForkHeight
 	i.pacayaForkHeight = cfg.PacayaForkHeight
-	i.startBlock = cfg.StartBlock
+	i.epochRevenueStartingBlock = cfg.EpochRevenueStartingBlock
 
 	return nil
 }
