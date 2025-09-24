@@ -11,6 +11,15 @@ import (
 	"github.com/taikoxyz/taiko-mono/packages/eventindexer/pkg/db"
 )
 
+// getOptionalUint64 returns a pointer to uint64 if the flag is set, nil otherwise
+func getOptionalUint64(c *cli.Context, flagName string) *uint64 {
+	if c.IsSet(flagName) {
+		value := c.Uint64(flagName)
+		return &value
+	}
+	return nil
+}
+
 type Config struct {
 	// db configs
 	DatabaseUsername        string
@@ -33,6 +42,7 @@ type Config struct {
 	Layer                   string
 	OntakeForkHeight        uint64
 	PacayaForkHeight        uint64
+	StartBlock              *uint64 // Optional starting block number (nil means use network defaults)
 	OpenDBFunc              func() (db.DB, error)
 }
 
@@ -59,6 +69,7 @@ func NewConfigFromCliContext(c *cli.Context) (*Config, error) {
 		Layer:                   c.String(flags.Layer.Name),
 		OntakeForkHeight:        c.Uint64(flags.OntakeForkHeight.Name),
 		PacayaForkHeight:        c.Uint64(flags.PacayaForkHeight.Name),
+		StartBlock:              getOptionalUint64(c, flags.StartBlock.Name),
 		OpenDBFunc: func() (db.DB, error) {
 			return db.OpenDBConnection(db.DBConnectionOpts{
 				Name:            c.String(flags.DatabaseUsername.Name),

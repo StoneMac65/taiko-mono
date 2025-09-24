@@ -88,6 +88,13 @@ var (
 		Category: indexerCategory,
 		EnvVars:  []string{"PACAYA_FORK_HEIGHT"},
 	}
+	StartBlock = &cli.Uint64Flag{
+		Name:     "startBlock",
+		Usage:    "Block number to start indexing from (overrides network defaults). Use 0 for genesis, or specify a recent block number",
+		Required: false,
+		Category: indexerCategory,
+		EnvVars:  []string{"START_BLOCK"},
+	}
 )
 
 var IndexerFlags = MergeFlags(CommonFlags, []cli.Flag{
@@ -103,4 +110,5 @@ var IndexerFlags = MergeFlags(CommonFlags, []cli.Flag{
 	IndexERC20s,
 	OntakeForkHeight,
 	PacayaForkHeight,
+	StartBlock,
 })
