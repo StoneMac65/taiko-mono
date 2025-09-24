@@ -8,8 +8,52 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/taikoxyz/taiko-mono/packages/eventindexer/indexer"
 )
+
+// NetworkConfig holds network-specific configuration
+type NetworkConfig struct {
+	ChainID              uint64
+	GenesisTimestamp     uint64
+	PreconfStartBlock    uint64
+	EpochDurationSeconds uint64
+	Name                 string
+}
+
+// GetNetworkConfig returns configuration for supported networks
+func GetNetworkConfig(chainID uint64) *NetworkConfig {
+	configs := map[uint64]*NetworkConfig{
+		167000: { // Taiko Mainnet
+			ChainID:              167000,
+			GenesisTimestamp:     1606824023, // Ethereum mainnet beacon genesis
+			PreconfStartBlock:    1320745,    // Aug 11, 2025 at 13:48:31 (preconf implementation)
+			EpochDurationSeconds: 384,        // 32 slots * 12 seconds
+			Name:                 "mainnet",
+		},
+		167009: { // Taiko Hekla
+			ChainID:              167009,
+			GenesisTimestamp:     1695902400, // Ethereum Holesky beacon genesis
+			PreconfStartBlock:    1000000,    // Approximate - need exact block when preconf was enabled
+			EpochDurationSeconds: 384,
+			Name:                 "hekla",
+		},
+		167012: { // Taiko Hoodi
+			ChainID:              167012,
+			GenesisTimestamp:     1742213400, // Ethereum Hoodi beacon genesis (L1: 560048)
+			PreconfStartBlock:    0,          // From L2 genesis - preconf enabled from start
+			EpochDurationSeconds: 384,
+			Name:                 "hoodi",
+		},
+		167010: { // Taiko Preconf Testnet (for testing)
+			ChainID:              167010,
+			GenesisTimestamp:     1742213400, // Same as Hoodi for testing
+			PreconfStartBlock:    0,          // From genesis
+			EpochDurationSeconds: 384,
+			Name:                 "preconf-test",
+		},
+	}
+
+	return configs[chainID]
+}
 
 func main() {
 	fmt.Println("Testing Improved Epoch Revenue Tracking System")
@@ -31,7 +75,7 @@ func testNetworkConfigs() {
 	networks := []uint64{167000, 167009, 167012, 999999}
 
 	for _, chainID := range networks {
-		config := indexer.GetNetworkConfig(chainID)
+		config := GetNetworkConfig(chainID)
 		if config != nil {
 			fmt.Printf("  Chain ID %d (%s):\n", chainID, config.Name)
 			fmt.Printf("    Genesis: %d (%s)\n",
@@ -152,7 +196,7 @@ func testRevenueCalculation(block *types.Block) {
 func testEpochCalculations() {
 	fmt.Println("\n4. Testing Epoch Calculations:")
 
-	config := indexer.GetNetworkConfig(167000) // Taiko mainnet
+	config := GetNetworkConfig(167000) // Taiko mainnet
 	if config == nil {
 		fmt.Printf("  ❌ Failed to get network config\n")
 		return
