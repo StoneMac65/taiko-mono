@@ -13,7 +13,6 @@ Tracks L2 revenue per preconfer epoch in ETH.
 
 ### Network Defaults
 - **Mainnet (167000)**: Block 1,320,745 (Aug 11, 2025)
-- **Hekla (167009)**: Block 1,472,749 (Jun 10, 2025)
 - **Hoodi (167012)**: Block 0 (genesis)
 
 ### Custom Starting Block

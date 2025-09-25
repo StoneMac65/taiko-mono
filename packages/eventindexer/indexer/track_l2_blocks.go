@@ -19,8 +19,6 @@ func (i *Indexer) startL2BlockMonitor(ctx context.Context) {
 	switch i.srcChainID {
 	case 167000: // Mainnet
 		lastProcessedBlock = 1320745 // Aug 11, 2025 at 13:48:31 (preconf implementation)
-	case 167009: // Hekla
-		lastProcessedBlock = 1472749 // Jun 10, 2025 at 06:13:22 (preconfirmation implementation)
 	case 167012: // Hoodi
 		lastProcessedBlock = 0 // From genesis
 	default:
