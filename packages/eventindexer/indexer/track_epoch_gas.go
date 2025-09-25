@@ -156,7 +156,15 @@ func (i *Indexer) isNewEpochForBlock(proposer common.Address, blockTime time.Tim
 
 // startNewEpochForBlock initializes a new epoch
 func (i *Indexer) startNewEpochForBlock(ctx context.Context, proposer common.Address, blockTime time.Time, blockNumber uint64, config *NetworkConfig) error {
-	epochNumber := i.calculateEpochNumberForTime(blockTime, config)
+	var epochNumber uint64
+
+	if i.currentEpoch == nil {
+		// First epoch - calculate from timestamp
+		epochNumber = i.calculateEpochNumberForTime(blockTime, config)
+	} else {
+		// Subsequent epochs - increment sequentially to avoid gaps
+		epochNumber = i.currentEpoch.EpochNumber + 1
+	}
 
 	i.currentEpoch = &EpochData{
 		EpochNumber:      epochNumber,
