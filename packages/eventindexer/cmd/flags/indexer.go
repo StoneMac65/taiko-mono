@@ -88,6 +88,13 @@ var (
 		Category: indexerCategory,
 		EnvVars:  []string{"PACAYA_FORK_HEIGHT"},
 	}
+	EpochRevenueStartingBlock = &cli.Uint64Flag{
+		Name:     "epochRevenueStartingBlock",
+		Usage:    "Block number to start epoch revenue tracking from (overrides network defaults). Mainnet default: 1320745 (Aug 11, 2025), Hekla: 1472749 (Jun 10, 2025), Hoodi: 0",
+		Required: false,
+		Category: indexerCategory,
+		EnvVars:  []string{"EPOCH_REVENUE_STARTING_BLOCK"},
+	}
 )
 
 var IndexerFlags = MergeFlags(CommonFlags, []cli.Flag{
@@ -103,4 +110,5 @@ var IndexerFlags = MergeFlags(CommonFlags, []cli.Flag{
 	IndexERC20s,
 	OntakeForkHeight,
 	PacayaForkHeight,
+	EpochRevenueStartingBlock,
 })

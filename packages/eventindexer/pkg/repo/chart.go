@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+
 	"github.com/taikoxyz/taiko-mono/packages/eventindexer/pkg/db"
 	"log/slog"
 
@@ -39,26 +40,47 @@ func (r *ChartRepository) Find(
 
 	var tx *gorm.DB
 
-	var q = `SELECT * FROM time_series_data
-	WHERE task = ? AND date BETWEEN ? AND ?
-	ORDER BY date;`
-
-	tx = r.getDB(ctx).Raw(q, task, start, end)
-
-	if feeTokenAddress != "" {
-		q = `SELECT * FROM time_series_data
+	// Aggregate revenue by date for epoch revenue tasks
+	if task == "epoch_l2_revenue_mainnet" || task == "epoch_l2_revenue_hekla" || task == "epoch_l2_revenue_hoodi" {
+		var q = `SELECT date, SUM(value) as value FROM time_series_data
 		WHERE task = ? AND date BETWEEN ? AND ?
-		AND fee_token_address = ?
+		GROUP BY date
 		ORDER BY date;`
 
-		tx = r.getDB(ctx).Raw(q, task, start, end, feeTokenAddress)
-	} else if tier != "" {
-		q = `SELECT * FROM time_series_data
+		tx = r.getDB(ctx).Raw(q, task, start, end)
+
+		if feeTokenAddress != "" {
+			q = `SELECT date, SUM(value) as value FROM time_series_data
+			WHERE task = ? AND date BETWEEN ? AND ?
+			AND fee_token_address = ?
+			GROUP BY date
+			ORDER BY date;`
+
+			tx = r.getDB(ctx).Raw(q, task, start, end, feeTokenAddress)
+		}
+	} else {
+		// Original logic for non-epoch tasks
+		var q = `SELECT * FROM time_series_data
 		WHERE task = ? AND date BETWEEN ? AND ?
-		AND tier = ?
 		ORDER BY date;`
 
-		tx = r.getDB(ctx).Raw(q, task, start, end, tier)
+		tx = r.getDB(ctx).Raw(q, task, start, end)
+
+		if feeTokenAddress != "" {
+			q = `SELECT * FROM time_series_data
+			WHERE task = ? AND date BETWEEN ? AND ?
+			AND fee_token_address = ?
+			ORDER BY date;`
+
+			tx = r.getDB(ctx).Raw(q, task, start, end, feeTokenAddress)
+		} else if tier != "" {
+			q = `SELECT * FROM time_series_data
+			WHERE task = ? AND date BETWEEN ? AND ?
+			AND tier = ?
+			ORDER BY date;`
+
+			tx = r.getDB(ctx).Raw(q, task, start, end, tier)
+		}
 	}
 
 	var tsd []*eventindexer.TimeSeriesData
