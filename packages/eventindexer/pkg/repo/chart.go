@@ -41,7 +41,7 @@ func (r *ChartRepository) Find(
 	var tx *gorm.DB
 
 	// Aggregate revenue by date for epoch revenue tasks
-	if task == "epoch_l2_revenue_mainnet" || task == "epoch_l2_revenue_hekla" || task == "epoch_l2_revenue_hoodi" {
+	if task == "epoch_l2_revenue_mainnet" || task == "epoch_l2_revenue_hoodi" {
 		var q = `SELECT date, SUM(value) as value FROM time_series_data
 		WHERE task = ? AND date BETWEEN ? AND ?
 		GROUP BY date

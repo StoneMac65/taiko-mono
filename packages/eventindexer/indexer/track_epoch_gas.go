@@ -53,13 +53,7 @@ func GetNetworkConfig(chainID uint64) *NetworkConfig {
 			EpochDurationSeconds: 384,        // 32 slots * 12 seconds
 			Name:                 "mainnet",
 		},
-		167009: { // Taiko Hekla
-			ChainID:              167009,
-			GenesisTimestamp:     1717995202, // Jun 10, 2025 at 06:13:22 (preconf start time)
-			PreconfStartBlock:    1472749,    // Jun 10, 2025 at 06:13:22 (preconfirmation implementation)
-			EpochDurationSeconds: 384,
-			Name:                 "hekla",
-		},
+
 		167012: { // Taiko Hoodi
 			ChainID:              167012,
 			GenesisTimestamp:     1742213400, // Ethereum Hoodi beacon genesis (L1: 560048)
