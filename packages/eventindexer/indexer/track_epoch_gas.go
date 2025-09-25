@@ -148,8 +148,8 @@ func (i *Indexer) isNewEpochForBlock(proposer common.Address, blockTime time.Tim
 			"newProposer", proposer.Hex(),
 			"epochNumber", currentEpochNumber,
 			"blockNumber", i.currentEpoch.EndBlockNumber)
-		// Update the proposer for this epoch to the latest one
-		i.currentEpoch.PreconferAddress = proposer.Hex()
+		// DO NOT update proposer - keep original proposer for this epoch
+		// The epoch should be attributed to whoever started it, not who ended it
 	}
 
 	return false
