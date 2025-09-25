@@ -160,14 +160,27 @@ func (i *Indexer) startNewEpochForBlock(ctx context.Context, proposer common.Add
 	// Always calculate epoch number from timestamp to ensure L1 alignment
 	epochNumber := i.calculateEpochNumberForTime(blockTime, config)
 
+	// Calculate the actual L1 epoch start time
+	actualEpochStartTime := i.calculateEpochStartTime(epochNumber, config)
+
+	// Find the actual start block - either current block or calculate from previous epoch
+	var actualStartBlock uint64
+	if i.currentEpoch != nil {
+		// Start block is the block after the previous epoch ended
+		actualStartBlock = i.currentEpoch.EndBlockNumber + 1
+	} else {
+		// First epoch - use current block as start
+		actualStartBlock = blockNumber
+	}
+
 	i.currentEpoch = &EpochData{
 		EpochNumber:      epochNumber,
 		PreconferAddress: proposer.Hex(),
-		StartTime:        blockTime,
+		StartTime:        actualEpochStartTime,
 		TotalL2Revenue:   big.NewInt(0),
 		BlockCount:       0,
 		BatchCount:       0,
-		StartBlockNumber: blockNumber,
+		StartBlockNumber: actualStartBlock,
 		EndBlockNumber:   blockNumber,
 		GasUsed:          0,
 		TransactionCount: 0,
@@ -176,8 +189,8 @@ func (i *Indexer) startNewEpochForBlock(ctx context.Context, proposer common.Add
 	slog.Info("Started new epoch",
 		"epochNumber", epochNumber,
 		"proposer", proposer.Hex(),
-		"startBlock", blockNumber,
-		"startTime", blockTime)
+		"startBlock", actualStartBlock,
+		"startTime", actualEpochStartTime)
 
 	return nil
 }
@@ -194,6 +207,18 @@ func (i *Indexer) calculateEpochNumberForTime(blockTime time.Time, config *Netwo
 	}
 
 	return (currentTimestamp - config.GenesisTimestamp) / config.EpochDurationSeconds
+}
+
+// calculateEpochStartTime calculates the actual start time of an epoch
+func (i *Indexer) calculateEpochStartTime(epochNumber uint64, config *NetworkConfig) time.Time {
+	if config == nil || config.GenesisTimestamp == 0 {
+		return time.Time{}
+	}
+
+	// Calculate the start timestamp of this epoch
+	epochStartTimestamp := config.GenesisTimestamp + (epochNumber * config.EpochDurationSeconds)
+
+	return time.Unix(int64(epochStartTimestamp), 0)
 }
 
 // getEpochBoundaries returns the start and end times for a given epoch
