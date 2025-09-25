@@ -128,8 +128,8 @@ func (i *Indexer) isNewEpochForBlock(proposer common.Address, blockTime time.Tim
 		return true
 	}
 
-	// Primary condition: Check if we've crossed into a new L1 epoch boundary
-	// This ensures epoch numbers are always correct and aligned with L1 beacon chain
+	// Only split on L1 epoch boundary crossing - ignore proposer changes
+	// This ensures each L1 epoch gets exactly one indexer epoch with correct number
 	currentEpochNumber := i.calculateEpochNumberForTime(blockTime, config)
 
 	if currentEpochNumber > i.currentEpoch.EpochNumber {
@@ -141,14 +141,15 @@ func (i *Indexer) isNewEpochForBlock(proposer common.Address, blockTime time.Tim
 		return true
 	}
 
-	// Secondary condition: Check if proposer changed within the same L1 epoch
+	// Log proposer changes but don't split epochs
 	if i.currentEpoch.PreconferAddress != proposer.Hex() {
-		slog.Info("Proposer changed within L1 epoch, starting new epoch",
+		slog.Info("Proposer changed within L1 epoch - continuing same indexer epoch",
 			"oldProposer", i.currentEpoch.PreconferAddress,
 			"newProposer", proposer.Hex(),
 			"epochNumber", currentEpochNumber,
 			"blockNumber", i.currentEpoch.EndBlockNumber)
-		return true
+		// Update the proposer for this epoch to the latest one
+		i.currentEpoch.PreconferAddress = proposer.Hex()
 	}
 
 	return false
@@ -156,15 +157,8 @@ func (i *Indexer) isNewEpochForBlock(proposer common.Address, blockTime time.Tim
 
 // startNewEpochForBlock initializes a new epoch
 func (i *Indexer) startNewEpochForBlock(ctx context.Context, proposer common.Address, blockTime time.Time, blockNumber uint64, config *NetworkConfig) error {
-	var epochNumber uint64
-
-	if i.currentEpoch == nil {
-		// First epoch - calculate from timestamp
-		epochNumber = i.calculateEpochNumberForTime(blockTime, config)
-	} else {
-		// Subsequent epochs - increment sequentially to avoid gaps
-		epochNumber = i.currentEpoch.EpochNumber + 1
-	}
+	// Always calculate epoch number from timestamp to ensure L1 alignment
+	epochNumber := i.calculateEpochNumberForTime(blockTime, config)
 
 	i.currentEpoch = &EpochData{
 		EpochNumber:      epochNumber,
