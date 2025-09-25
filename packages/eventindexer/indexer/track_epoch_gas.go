@@ -128,28 +128,26 @@ func (i *Indexer) isNewEpochForBlock(proposer common.Address, blockTime time.Tim
 		return true
 	}
 
-	// Primary condition: Check if proposer changed
-	if i.currentEpoch.PreconferAddress != proposer.Hex() {
-		slog.Info("Proposer changed, starting new epoch",
-			"oldProposer", i.currentEpoch.PreconferAddress,
-			"newProposer", proposer.Hex(),
-			"blockNumber", i.currentEpoch.EndBlockNumber)
+	// Primary condition: Check if we've crossed into a new L1 epoch boundary
+	// This ensures epoch numbers are always correct and aligned with L1 beacon chain
+	currentEpochNumber := i.calculateEpochNumberForTime(blockTime, config)
+
+	if currentEpochNumber > i.currentEpoch.EpochNumber {
+		slog.Info("Crossed L1 epoch boundary, starting new epoch",
+			"proposer", proposer.Hex(),
+			"oldEpoch", i.currentEpoch.EpochNumber,
+			"newEpoch", currentEpochNumber,
+			"blockTime", blockTime.Format("2006-01-02 15:04:05"))
 		return true
 	}
 
-	// Secondary condition: Check if we've crossed a significant time boundary
-	// Only split on timestamp if proposer is the same but we've crossed multiple epochs
-	currentEpochNumber := i.calculateEpochNumberForTime(blockTime, config)
-	epochDifference := currentEpochNumber - i.currentEpoch.EpochNumber
-
-	// Allow same proposer to continue across epoch boundaries, but limit to prevent
-	// extremely long epochs (e.g., if a proposer is active for hours)
-	if epochDifference >= 3 { // Allow up to ~19 minutes (3 * 384 seconds) per proposer session
-		slog.Info("Long proposer session, splitting epoch on time boundary",
-			"proposer", proposer.Hex(),
-			"currentEpoch", i.currentEpoch.EpochNumber,
-			"newEpoch", currentEpochNumber,
-			"epochDifference", epochDifference)
+	// Secondary condition: Check if proposer changed within the same L1 epoch
+	if i.currentEpoch.PreconferAddress != proposer.Hex() {
+		slog.Info("Proposer changed within L1 epoch, starting new epoch",
+			"oldProposer", i.currentEpoch.PreconferAddress,
+			"newProposer", proposer.Hex(),
+			"epochNumber", currentEpochNumber,
+			"blockNumber", i.currentEpoch.EndBlockNumber)
 		return true
 	}
 
