@@ -137,16 +137,19 @@ func (i *Indexer) isNewEpochForBlock(proposer common.Address, blockTime time.Tim
 		return true
 	}
 
-	// Secondary condition: Check if we've crossed into a new epoch time boundary
-	// Split epochs based on actual 384-second epoch boundaries, regardless of proposer
+	// Secondary condition: Check if we've crossed a significant time boundary
+	// Only split on timestamp if proposer is the same but we've crossed multiple epochs
 	currentEpochNumber := i.calculateEpochNumberForTime(blockTime, config)
+	epochDifference := currentEpochNumber - i.currentEpoch.EpochNumber
 
-	if currentEpochNumber > i.currentEpoch.EpochNumber {
-		slog.Info("Crossed epoch time boundary, starting new epoch",
+	// Allow same proposer to continue across epoch boundaries, but limit to prevent
+	// extremely long epochs (e.g., if a proposer is active for hours)
+	if epochDifference >= 3 { // Allow up to ~19 minutes (3 * 384 seconds) per proposer session
+		slog.Info("Long proposer session, splitting epoch on time boundary",
 			"proposer", proposer.Hex(),
-			"oldEpoch", i.currentEpoch.EpochNumber,
+			"currentEpoch", i.currentEpoch.EpochNumber,
 			"newEpoch", currentEpochNumber,
-			"blockTime", blockTime.Format("2006-01-02 15:04:05"))
+			"epochDifference", epochDifference)
 		return true
 	}
 
