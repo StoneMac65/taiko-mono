@@ -48,14 +48,14 @@ func GetNetworkConfig(chainID uint64) *NetworkConfig {
 	configs := map[uint64]*NetworkConfig{
 		167000: { // Taiko Mainnet
 			ChainID:              167000,
-			GenesisTimestamp:     1716768000, // Taiko mainnet launch: May 27, 2024
+			GenesisTimestamp:     1723384111, // Aug 11, 2025 at 13:48:31 (preconf start time)
 			PreconfStartBlock:    1320745,    // Aug 11, 2025 at 13:48:31 (preconf implementation)
 			EpochDurationSeconds: 384,        // 32 slots * 12 seconds
 			Name:                 "mainnet",
 		},
 		167009: { // Taiko Hekla
 			ChainID:              167009,
-			GenesisTimestamp:     1695902400, // Ethereum Holesky beacon genesis
+			GenesisTimestamp:     1717995202, // Jun 10, 2025 at 06:13:22 (preconf start time)
 			PreconfStartBlock:    1472749,    // Jun 10, 2025 at 06:13:22 (preconfirmation implementation)
 			EpochDurationSeconds: 384,
 			Name:                 "hekla",
