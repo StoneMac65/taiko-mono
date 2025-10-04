@@ -26,4 +26,7 @@ func (srv *Server) configureRoutes() {
 
 	// Epoch Revenue API
 	srv.echo.GET("/epoch-revenue", srv.GetEpochRevenue)
+
+	// Epoch Gas Tracking API
+	srv.echo.GET("/epochGas", srv.GetEpochGasTracking)
 }

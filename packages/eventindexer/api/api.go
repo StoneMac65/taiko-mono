@@ -89,6 +89,7 @@ func InitFromConfig(ctx context.Context, api *API, cfg *Config) error {
 		Echo:             echo.New(),
 		CorsOrigins:      cfg.CORSOrigins,
 		EthClient:        ethClient,
+		DB:               db,
 	})
 	if err != nil {
 		return err

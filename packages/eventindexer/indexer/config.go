@@ -33,6 +33,8 @@ type Config struct {
 	Layer                   string
 	OntakeForkHeight        uint64
 	PacayaForkHeight        uint64
+	EnableEpochTracking     bool
+	EpochTrackingStartBlock uint64
 	OpenDBFunc              func() (db.DB, error)
 }
 
@@ -59,6 +61,8 @@ func NewConfigFromCliContext(c *cli.Context) (*Config, error) {
 		Layer:                   c.String(flags.Layer.Name),
 		OntakeForkHeight:        c.Uint64(flags.OntakeForkHeight.Name),
 		PacayaForkHeight:        c.Uint64(flags.PacayaForkHeight.Name),
+		EnableEpochTracking:     c.Bool(flags.EnableEpochTracking.Name),
+		EpochTrackingStartBlock: c.Uint64(flags.EpochTrackingStartBlock.Name),
 		OpenDBFunc: func() (db.DB, error) {
 			return db.OpenDBConnection(db.DBConnectionOpts{
 				Name:            c.String(flags.DatabaseUsername.Name),

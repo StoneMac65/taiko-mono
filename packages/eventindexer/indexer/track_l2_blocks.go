@@ -9,31 +9,40 @@ import (
 
 // startL2BlockMonitor starts monitoring L2 blocks for epoch tracking
 func (i *Indexer) startL2BlockMonitor(ctx context.Context) {
+	defer i.wg.Done()
+
 	ticker := time.NewTicker(2 * time.Second) // Check every 2 seconds
 	defer ticker.Stop()
 
-	var lastProcessedBlock uint64 = 0
+	var lastProcessedBlock uint64
 
-	// Get starting block number for epoch tracking (independent from main indexer)
-	// Use network-specific defaults for epoch tracking
-	switch i.srcChainID {
-	case 167000: // Mainnet
-		lastProcessedBlock = 1320745 // Aug 11, 2025 at 13:48:31 (preconf implementation)
-	case 167012: // Hoodi
-		lastProcessedBlock = 0 // From genesis
-	default:
-		// For unknown networks, start from recent blocks
-		latestBlock, err := i.ethClient.BlockNumber(ctx)
-		if err != nil {
-			slog.Error("Failed to get latest block number", "error", err)
-			return
+	// Determine starting block for epoch tracking (independent from main indexer)
+	if i.epochTrackingStartBlock > 0 {
+		// User specified a custom start block
+		lastProcessedBlock = i.epochTrackingStartBlock - 1
+		slog.Info("Using user-specified start block for epoch tracking", "startBlock", i.epochTrackingStartBlock)
+	} else {
+		// Use network-specific defaults for epoch tracking (after preconfirmations)
+		switch i.srcChainID {
+		case 167000: // Mainnet
+			lastProcessedBlock = 1320744 // Aug 11, 2025 at 13:48:31 (preconf implementation) - 1
+		case 167012: // Hoodi
+			lastProcessedBlock = 0 // From genesis
+		default:
+			// For unknown networks, start from recent blocks
+			latestBlock, err := i.ethClient.BlockNumber(ctx)
+			if err != nil {
+				slog.Error("Failed to get latest block number", "error", err)
+				return
+			}
+			lastProcessedBlock = latestBlock - 100 // Start 100 blocks back for unknown networks
 		}
-		lastProcessedBlock = latestBlock - 100 // Start 100 blocks back for unknown networks
 	}
 
 	slog.Info("Starting L2 block monitor for epoch tracking",
 		"chainID", i.srcChainID,
-		"startBlock", lastProcessedBlock)
+		"startBlock", lastProcessedBlock+1,
+		"userSpecified", i.epochTrackingStartBlock > 0)
 
 	for {
 		select {

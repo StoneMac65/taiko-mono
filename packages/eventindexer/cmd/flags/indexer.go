@@ -88,6 +88,22 @@ var (
 		Category: indexerCategory,
 		EnvVars:  []string{"PACAYA_FORK_HEIGHT"},
 	}
+	EnableEpochTracking = &cli.BoolFlag{
+		Name:     "enableEpochTracking",
+		Usage:    "Enable epoch-based gas tracking (independent of main indexer)",
+		Required: false,
+		Value:    false,
+		Category: indexerCategory,
+		EnvVars:  []string{"ENABLE_EPOCH_TRACKING"},
+	}
+	EpochTrackingStartBlock = &cli.Uint64Flag{
+		Name:     "epochTrackingStartBlock",
+		Usage:    "Starting block number for epoch tracking (after preconfirmations)",
+		Required: false,
+		Value:    0, // 0 means auto-detect based on network
+		Category: indexerCategory,
+		EnvVars:  []string{"EPOCH_TRACKING_START_BLOCK"},
+	}
 )
 
 var IndexerFlags = MergeFlags(CommonFlags, []cli.Flag{
@@ -103,4 +119,6 @@ var IndexerFlags = MergeFlags(CommonFlags, []cli.Flag{
 	IndexERC20s,
 	OntakeForkHeight,
 	PacayaForkHeight,
+	EnableEpochTracking,
+	EpochTrackingStartBlock,
 })

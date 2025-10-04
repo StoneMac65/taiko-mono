@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/patrickmn/go-cache"
 	"github.com/taikoxyz/taiko-mono/packages/eventindexer"
+	"github.com/taikoxyz/taiko-mono/packages/eventindexer/pkg/db"
 
 	echo "github.com/labstack/echo/v4"
 )
@@ -34,6 +35,7 @@ type Server struct {
 	erc20BalanceRepo eventindexer.ERC20BalanceRepository
 	chartRepo        eventindexer.ChartRepository
 	cache            *cache.Cache
+	db               db.DB
 }
 
 type NewServerOpts struct {
@@ -44,6 +46,7 @@ type NewServerOpts struct {
 	ChartRepo        eventindexer.ChartRepository
 	EthClient        *ethclient.Client
 	CorsOrigins      []string
+	DB               db.DB
 }
 
 func (opts NewServerOpts) Validate() error {
@@ -76,6 +79,7 @@ func NewServer(opts NewServerOpts) (*Server, error) {
 		erc20BalanceRepo: opts.ERC20BalanceRepo,
 		chartRepo:        opts.ChartRepo,
 		cache:            cache,
+		db:               opts.DB,
 	}
 
 	corsOrigins := opts.CorsOrigins

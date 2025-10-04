@@ -78,8 +78,10 @@ type Indexer struct {
 	isPostOntakeForkHeightReached bool
 	isPostPacayaForkHeightReached bool
 
-	// Epoch tracking
-	currentEpoch *EpochData
+	// Epoch tracking configuration
+	enableEpochTracking     bool
+	epochTrackingStartBlock uint64
+	currentEpoch            *EpochData
 }
 
 func (i *Indexer) Start() error {
@@ -89,10 +91,18 @@ func (i *Indexer) Start() error {
 		return errors.Wrap(err, "i.setInitialIndexingBlockByMode")
 	}
 
-	i.wg.Add(2) // Add one more for L2 block monitor
-
+	// Start main event loop
+	i.wg.Add(1)
 	go i.eventLoop(i.ctx)
-	go i.startL2BlockMonitor(i.ctx) // Start L2 block monitoring for epoch tracking
+
+	// Conditionally start epoch tracking if enabled
+	if i.enableEpochTracking {
+		slog.Info("Epoch tracking enabled, starting L2 block monitor", "startBlock", i.epochTrackingStartBlock)
+		i.wg.Add(1)
+		go i.startL2BlockMonitor(i.ctx)
+	} else {
+		slog.Info("Epoch tracking disabled")
+	}
 
 	return nil
 }
@@ -253,6 +263,10 @@ func InitFromConfig(ctx context.Context, i *Indexer, cfg *Config) error {
 	i.contractToMetadataMutex = &sync.Mutex{}
 	i.ontakeForkHeight = cfg.OntakeForkHeight
 	i.pacayaForkHeight = cfg.PacayaForkHeight
+
+	// Initialize epoch tracking configuration
+	i.enableEpochTracking = cfg.EnableEpochTracking
+	i.epochTrackingStartBlock = cfg.EpochTrackingStartBlock
 
 	return nil
 }
