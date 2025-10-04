@@ -27,17 +27,11 @@ import (
 //			@Success		200	{object} eventindexer.EpochGasResponse
 //			@Router			/epochGas [get]
 func (srv *Server) GetEpochGasTracking(c echo.Context) error {
-	// Parse query parameters
+	// Parse query parameters - simplified validation like other handlers
 	chainIDStr := c.QueryParam("chainId")
-	if chainIDStr == "" {
-		return webutils.LogAndRenderErrors(c, http.StatusBadRequest, 
-			webutils.NewError("chainId is required"))
-	}
-
 	chainID, err := strconv.ParseUint(chainIDStr, 10, 64)
 	if err != nil {
-		return webutils.LogAndRenderErrors(c, http.StatusBadRequest, 
-			webutils.NewError("invalid chainId"))
+		return webutils.LogAndRenderErrors(c, http.StatusBadRequest, err)
 	}
 
 	// Parse optional parameters
@@ -45,8 +39,7 @@ func (srv *Server) GetEpochGasTracking(c echo.Context) error {
 	if epochIDStr := c.QueryParam("epochId"); epochIDStr != "" {
 		parsed, err := strconv.ParseUint(epochIDStr, 10, 64)
 		if err != nil {
-			return webutils.LogAndRenderErrors(c, http.StatusBadRequest, 
-				webutils.NewError("invalid epochId"))
+			return webutils.LogAndRenderErrors(c, http.StatusBadRequest, err)
 		}
 		epochID = &parsed
 	}
@@ -55,8 +48,7 @@ func (srv *Server) GetEpochGasTracking(c echo.Context) error {
 	if startEpochStr := c.QueryParam("startEpoch"); startEpochStr != "" {
 		parsed, err := strconv.ParseUint(startEpochStr, 10, 64)
 		if err != nil {
-			return webutils.LogAndRenderErrors(c, http.StatusBadRequest, 
-				webutils.NewError("invalid startEpoch"))
+			return webutils.LogAndRenderErrors(c, http.StatusBadRequest, err)
 		}
 		startEpoch = &parsed
 	}
@@ -65,8 +57,7 @@ func (srv *Server) GetEpochGasTracking(c echo.Context) error {
 	if endEpochStr := c.QueryParam("endEpoch"); endEpochStr != "" {
 		parsed, err := strconv.ParseUint(endEpochStr, 10, 64)
 		if err != nil {
-			return webutils.LogAndRenderErrors(c, http.StatusBadRequest, 
-				webutils.NewError("invalid endEpoch"))
+			return webutils.LogAndRenderErrors(c, http.StatusBadRequest, err)
 		}
 		endEpoch = &parsed
 	}
