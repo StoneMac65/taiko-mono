@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/taikoxyz/taiko-mono/packages/eventindexer"
 	"github.com/taikoxyz/taiko-mono/packages/eventindexer/pkg/db"
@@ -17,7 +18,7 @@ type EpochGasTrackingRepository struct {
 // NewEpochGasTrackingRepository creates a new epoch gas tracking repository
 func NewEpochGasTrackingRepository(database db.DB) (eventindexer.EpochGasTrackingRepository, error) {
 	if database == nil {
-		return nil, eventindexer.ErrNoDB
+		return nil, db.ErrNoDB
 	}
 
 	return &EpochGasTrackingRepository{
@@ -41,8 +42,9 @@ func (r *EpochGasTrackingRepository) Save(ctx context.Context, opts eventindexer
 
 	// Use ON DUPLICATE KEY UPDATE for MySQL
 	result := r.db.GormDB().WithContext(ctx).
-		Clauses(gorm.Clause{
-			Expression: gorm.Expr("ON DUPLICATE KEY UPDATE total_gas_used = VALUES(total_gas_used), block_count = VALUES(block_count), avg_gas_per_block = VALUES(avg_gas_per_block), min_gas = VALUES(min_gas), max_gas = VALUES(max_gas), first_block_id = VALUES(first_block_id), last_block_id = VALUES(last_block_id), updated_at = CURRENT_TIMESTAMP"),
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "epoch_id"}, {Name: "chain_id"}},
+			DoUpdates: clause.AssignmentColumns([]string{"total_gas_used", "block_count", "avg_gas_per_block", "min_gas", "max_gas", "first_block_id", "last_block_id", "updated_at"}),
 		}).
 		Create(epochGas)
 
