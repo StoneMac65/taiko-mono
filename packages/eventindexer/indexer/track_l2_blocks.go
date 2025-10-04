@@ -49,31 +49,31 @@ func (i *Indexer) startL2BlockMonitor(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			if err := i.processNewL2Blocks(ctx, &lastProcessedBlock); err != nil {
-				slog.Warn("Failed to process new L2 blocks", "error", err)
+			// Get latest block number
+			latestBlock, err := i.ethClient.BlockNumber(ctx)
+			if err != nil {
+				slog.Error("Failed to get latest block number", "error", err)
+				continue
+			}
+
+			// Process new blocks
+			for blockNum := lastProcessedBlock + 1; blockNum <= latestBlock; blockNum++ {
+				if err := i.trackL2BlockForEpoch(ctx, blockNum); err != nil {
+					slog.Error("Failed to track L2 block for epoch", 
+						"blockNumber", blockNum, 
+						"error", err)
+					continue
+				}
+				lastProcessedBlock = blockNum
+			}
+
+			// Log progress periodically
+			if latestBlock > lastProcessedBlock {
+				slog.Debug("Processed L2 blocks for epoch tracking",
+					"lastProcessed", lastProcessedBlock,
+					"latest", latestBlock,
+					"chainID", i.srcChainID)
 			}
 		}
 	}
-}
-
-// processNewL2Blocks processes any new L2 blocks since last check
-func (i *Indexer) processNewL2Blocks(ctx context.Context, lastProcessedBlock *uint64) error {
-	latestBlock, err := i.ethClient.BlockNumber(ctx)
-	if err != nil {
-		return err
-	}
-
-	// Process each new block
-	for blockNum := *lastProcessedBlock + 1; blockNum <= latestBlock; blockNum++ {
-		if err := i.trackL2BlockForEpoch(ctx, blockNum); err != nil {
-			slog.Warn("Failed to track L2 block for epoch",
-				"blockNumber", blockNum,
-				"error", err)
-			continue
-		}
-
-		*lastProcessedBlock = blockNum
-	}
-
-	return nil
 }
